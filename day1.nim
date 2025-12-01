@@ -64,7 +64,7 @@ block part2:
     for i in 1 .. amount:
       inc(position)
       if position > DIAL_HIGH: position = DIAL_LOW
-      if position == DIAL_HIGH: inc(clicks)
+      if position == DIAL_LOW: inc(clicks)
 
     return (position, clicks)
 

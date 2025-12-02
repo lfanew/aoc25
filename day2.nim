@@ -40,7 +40,9 @@ block part2:
       # echo idString, ": ", parts
       var valid = false
       for i in 1 ..< parts.len:
-        if parts[i] != parts[i-1]: valid = true
+        if parts[i] != parts[i-1]:
+          valid = true
+          break
       if not valid: return true
 
     return false

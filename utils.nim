@@ -10,6 +10,7 @@ template withFile*(f: untyped, filename: string, mode: FileMode, body: untyped) 
     quit("Cannot open file: " & fn)
 
 # No-copy StringView
+# TODO: Make this a generic view
 
 type
   StringView* = object

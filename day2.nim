@@ -30,17 +30,15 @@ block part2:
     let midpoint = idString.len div 2
     for point in countdown(midpoint, 1):
       if idString.len mod point != 0:
-        # echo "yikes: ", point
         continue
-      var parts: seq[StringView]
-      for i in countup(0, idString.len - 1, point):
-        # echo "i: ", i
-        # echo "point: ", point
-        parts.add(idString.toStringView(i, i + point - 1))
-      # echo idString, ": ", parts
+      var previous: StringView
       var valid = false
-      for i in 1 ..< parts.len:
-        if parts[i] != parts[i-1]:
+      for i in countup(0, idString.len - 1, point):
+        if i == 0:
+          previous = idString.toStringView(i, i + point - 1)
+          continue
+        let current = idString.toStringView(i, i + point - 1)
+        if current != previous:
           valid = true
           break
       if not valid: return true

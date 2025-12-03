@@ -3,3 +3,8 @@
 !*.*
 input.txt
 sample.txt
+FlameGraph/
+flamegraph.svg
+perf.data
+*.perf
+*.folded

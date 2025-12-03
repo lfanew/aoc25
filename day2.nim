@@ -17,12 +17,12 @@ block part1:
           var idString = $id
           if idString.len mod 2 == 1: continue
           let midpoint = idString.len div 2
-          let left = idString[0 ..< midPoint]       
-          let right = idString[midPoint ..< idString.len]       
+          # let left = idString[0 ..< midPoint]
+          let left = idString.toStringView(0, midPoint - 1)
+          let right = idString.toStringView(midPoint, idString.len - 1)
           if left == right: answer += id
 
     echo answer
-
 
 block part2:
   proc isInvalid(id: BiggestInt): bool =
@@ -32,11 +32,11 @@ block part2:
       if idString.len mod point != 0:
         # echo "yikes: ", point
         continue
-      var parts: seq[string]
+      var parts: seq[StringView]
       for i in countup(0, idString.len - 1, point):
         # echo "i: ", i
         # echo "point: ", point
-        parts.add(idString[i ..< i + point])
+        parts.add(idString.toStringView(i, i + point - 1))
       # echo idString, ": ", parts
       var valid = false
       for i in 1 ..< parts.len:
@@ -46,7 +46,7 @@ block part2:
       if not valid: return true
 
     return false
-    
+
   withFile(f, filename, FileMode.fmRead):
     var line: string
     var answer: BiggestInt = 0

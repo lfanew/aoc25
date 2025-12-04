@@ -1,6 +1,6 @@
 import utils
 
-const filename = "sample.txt"
+const filename = "input.txt"
 
 type
   Grid = seq[Row]
@@ -18,7 +18,7 @@ const NEIGHBOR_DELTAS: array[8, Point] = [
   (-1, -1)
 ]
 
-proc `[]`(grid: Grid, point: Point): char =
+func `[]`(grid: Grid, point: Point): char =
   let (x, y) = point
   return grid[y][x]
 
@@ -29,7 +29,7 @@ proc `[]=`(grid: var Grid, point: Point, value: char) =
 func add(point: Point, delta: Point): Point =
   (point[0] + delta[0], point[1] + delta[1])
 
-proc contains(grid: Grid, point: Point): bool =
+func contains(grid: Grid, point: Point): bool =
   let (x, y) = point
   return y >= 0 and y < grid.len and x >= 0 and x < grid[0].len
 

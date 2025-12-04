@@ -1,6 +1,6 @@
 import utils
 
-const filename = "input.txt"
+const filename = "sample.txt"
 
 type
   Grid = seq[Row]
@@ -22,6 +22,10 @@ proc `[]`(grid: Grid, point: Point): char =
   let (x, y) = point
   return grid[y][x]
 
+proc `[]=`(grid: var Grid, point: Point, value: char) =
+  let (x, y) = point
+  grid[y][x] = value
+
 func add(point: Point, delta: Point): Point =
   (point[0] + delta[0], point[1] + delta[1])
 
@@ -40,22 +44,50 @@ iterator adjacent(grid: Grid, point: Point): char =
     if grid.contains(point): yield grid[point]
 
 
-withFile(f, filename, FileMode.fmRead):
-  var line: string
-  var answer = 0
-  var grid: Grid
-  while f.readLine(line):
-    var row: Row
-    for ch in line:
-      row.add(ch)
-    grid.add(row)
+block part1:
+  withFile(f, filename, FileMode.fmRead):
+    var line: string
+    var answer = 0
+    var grid: Grid
+    while f.readLine(line):
+      var row: Row
+      for ch in line:
+        row.add(ch)
+      grid.add(row)
 
-  for point in grid.points:
-    var rolls = 0
-    if grid[point] == '.': continue
-    for adjacent in grid.adjacent(point):
-      if adjacent == '@': inc(rolls)
-    if rolls < 4:
-      inc answer
+    for point in grid.points:
+      var rolls = 0
+      if grid[point] == '.': continue
+      for adjacent in grid.adjacent(point):
+        if adjacent == '@': inc(rolls)
+      if rolls < 4:
+        inc answer
 
-  echo "Part 1: ", answer
+    echo "Part 1: ", answer
+
+block part2:
+  withFile(f, filename, FileMode.fmRead):
+    var line: string
+    var answer = 0
+    var grid: Grid
+    while f.readLine(line):
+      var row: Row
+      for ch in line:
+        row.add(ch)
+      grid.add(row)
+
+    var removed = true
+    while removed:
+      removed = false
+      for point in grid.points:
+        var rolls = 0
+        if grid[point] == '.': continue
+        for adjacent in grid.adjacent(point):
+          if adjacent == '@':
+            inc(rolls)
+        if rolls < 4:
+          grid[point] = '.'
+          inc(answer)
+          removed = true
+
+    echo "Part 1: ", answer

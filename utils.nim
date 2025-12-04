@@ -13,22 +13,26 @@ template withFile*(f: untyped, filename: string, mode: FileMode, body: untyped) 
 # TODO: Make this a generic view
 
 type
-  StringView* = object
-    data: ptr UncheckedArray[char]
+  View*[T] = object
+    data: ptr UncheckedArray[T]
     len*: int
 
-proc toStringView*(s: string, first, last: int): StringView =
+proc toView*[T](s: openarray[T], first, last: int): View[T] =
   assert first >= 0 and last < s.len and first <= last
   result.len = last - first + 1
-  result.data = cast[ptr UncheckedArray[char]](addr s[first])
+  result.data = cast[ptr UncheckedArray[T]](addr s[first])
 
-proc `[]`*(self: StringView, i: int): char =
+proc `[]`*[T](self: View[T], i: int): T =
   assert i >= 0 and i < self.len
   return self.data[i]
 
-proc `==`*(self, other: StringView): bool =
+proc `==`*[T](self, other: View[T]): bool =
   if self.len != other.len: return false
   for i in 0 ..< self.len:
     if self[i] != other[i]: return false
 
   return true
+
+func parseInt*(c: char): int =
+  assert c >= '0' and c <= '9'
+  return ord(c) - ord('0')

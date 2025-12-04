@@ -2,10 +2,6 @@ import utils
 
 const filename = "input.txt"
 
-proc parseInt(c: char): int =
-  assert c >= '0' and c <= '9'
-  return ord(c) - ord('0')
-
 type
   DigitPositions = array[10, seq[int]]
 

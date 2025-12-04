@@ -18,8 +18,8 @@ block part1:
           if idString.len mod 2 == 1: continue
           let midpoint = idString.len div 2
           # let left = idString[0 ..< midPoint]
-          let left = idString.toStringView(0, midPoint - 1)
-          let right = idString.toStringView(midPoint, idString.len - 1)
+          let left = idString.toView(0, midPoint - 1)
+          let right = idString.toView(midPoint, idString.len - 1)
           if left == right: answer += id
 
     echo answer
@@ -31,13 +31,13 @@ block part2:
     for point in countdown(midpoint, 1):
       if idString.len mod point != 0:
         continue
-      var previous: StringView
+      var previous: View[char]
       var valid = false
       for i in countup(0, idString.len - 1, point):
         if i == 0:
-          previous = idString.toStringView(i, i + point - 1)
+          previous = idString.toView(i, i + point - 1)
           continue
-        let current = idString.toStringView(i, i + point - 1)
+        let current = idString.toView(i, i + point - 1)
         if current != previous:
           valid = true
           break

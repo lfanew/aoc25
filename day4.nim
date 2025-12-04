@@ -43,6 +43,11 @@ iterator adjacent(grid: Grid, point: Point): char =
     let point = point.add(delta)
     if grid.contains(point): yield grid[point]
 
+iterator adjacentPoints(grid: Grid, point: Point): Point =
+  for delta in NEIGHBOR_DELTAS:
+    let point = point.add(delta)
+    if grid.contains(point): yield point
+
 
 block part1:
   withFile(f, filename, FileMode.fmRead):
@@ -76,10 +81,12 @@ block part2:
         row.add(ch)
       grid.add(row)
 
-    var removed = true
-    while removed:
-      removed = false
-      for point in grid.points:
+    var work: seq[Point]
+    for point in grid.points:
+      work.add(point)
+    while work.len > 0:
+      var newWork: seq[Point]
+      for idx, point in work:
         var rolls = 0
         if grid[point] == '.': continue
         for adjacent in grid.adjacent(point):
@@ -87,7 +94,10 @@ block part2:
             inc(rolls)
         if rolls < 4:
           grid[point] = '.'
+          for adjacent in grid.adjacentPoints(point):
+            if grid[adjacent] == '@':
+              newWork.add(adjacent)
           inc(answer)
-          removed = true
+      work = newWork
 
-    echo "Part 1: ", answer
+    echo "Part 2: ", answer

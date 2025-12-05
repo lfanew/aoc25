@@ -1,7 +1,8 @@
+import std/algorithm
 import std/strutils
 import utils
 
-const filename = "sample.txt"
+const filename = "input.txt"
 
 type
   Range = object
@@ -14,17 +15,21 @@ type
 func contains(range: Range, n: int): bool =
   return n >= range.low and n <= range.high
 
-func overlaps(self, other: Range): bool =
-  return self.contains(other.low) or self.contains(other.high)
-
 func combine(self, other: Range): Range =
   let low = min(self.low, other.low)
   let high = max(self.high, other.high)
   return Range(low: low, high: high)
 
+func len(self: Range): int =
+  return (self.high - self.low) + 1
+
 func parseRange(s: string): Range =
   let parts = s.split('-')
   return Range(low: parts[0].parseInt, high: parts[1].parseInt)
+
+# used by sort
+func `<`(self, other: Range): bool =
+  return self.low < other.low
 
 block part1:
   withFile(f, filename, FileMode.fmRead):
@@ -52,18 +57,22 @@ block part2:
     var answer = 0
     var line: string
     var ranges: seq[Range]
+
     while f.readLine(line):
       if line.isEmptyOrWhitespace:
         break
       ranges.add(line.parseRange)
-    for i in 0 ..< ranges.len:
-      let range1 = ranges[i]
-      for j in i+1 ..< ranges.len:
-        let range2 = ranges[j]
-        if range1.overlaps(range2):
-          echo range1, "|", range2
-          echo "Combining..."
-          let newRange = range1.combine(range2)
-          echo newRange
+    sort(ranges)
+    var i = 1
+    while i < ranges.len:
+      let current = ranges[i]
+      let prev = ranges[i-1]
+      if current.low <= prev.high:
+        ranges[i] = current.combine(prev)
+        ranges.delete(i-1)
+      else:
+        inc(i)
         
-    echo "Part1: ", answer
+    for range in ranges:
+      answer += range.len
+    echo "Part2: ", answer

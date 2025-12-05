@@ -31,48 +31,40 @@ func parseRange(s: string): Range =
 func `<`(self, other: Range): bool =
   return self.low < other.low
 
-block part1:
-  withFile(f, filename, FileMode.fmRead):
-    var answer = 0
-    var pm = ParsingMode.pmRange
-    var line: string
-    var ranges: seq[Range]
-    while f.readLine(line):
-      if line.isEmptyOrWhitespace:
-        pm = ParsingMode.pmId
-        continue
-      case pm:
-        of ParsingMode.pmRange:
-          ranges.add(line.parseRange)
-        of ParsingMode.pmId:
-          let id = line.parseInt
-          for range in ranges:
-            if range.contains(id):
-              inc(answer)
-              break
-    echo "Part1: ", answer
+func sum(ranges: openArray[Range]): int =
+  for range in ranges: result += range.len
 
-block part2:
-  withFile(f, filename, FileMode.fmRead):
-    var answer = 0
-    var line: string
-    var ranges: seq[Range]
-
-    while f.readLine(line):
-      if line.isEmptyOrWhitespace:
-        break
-      ranges.add(line.parseRange)
-    sort(ranges)
-    var i = 1
-    while i < ranges.len:
-      let current = ranges[i]
-      let prev = ranges[i-1]
-      if current.low <= prev.high:
-        ranges[i] = current.combine(prev)
-        ranges.delete(i-1)
-      else:
-        inc(i)
-        
-    for range in ranges:
-      answer += range.len
-    echo "Part2: ", answer
+proc mergeRanges(ranges: var seq[Range]) =
+  var i = 1
+  while i < ranges.len:
+    let current = ranges[i]
+    let prev = ranges[i-1]
+    if current.low <= prev.high:
+      ranges[i] = current.combine(prev)
+      ranges.delete(i-1)
+    else:
+      inc(i)
+  
+withFile(f, filename, FileMode.fmRead):
+  var part1 = 0
+  var pm = ParsingMode.pmRange
+  var line: string
+  var ranges: seq[Range]
+  while f.readLine(line):
+    if line.isEmptyOrWhitespace:
+      pm = ParsingMode.pmId
+      continue
+    case pm:
+      of ParsingMode.pmRange:
+        ranges.add(line.parseRange)
+      of ParsingMode.pmId:
+        let id = line.parseInt
+        for range in ranges:
+          if range.contains(id):
+            inc(part1)
+            break
+  echo "Part1: ", part1
+  sort(ranges)
+  ranges.mergeRanges
+  let part2 = ranges.sum
+  echo "Part2: ", part2

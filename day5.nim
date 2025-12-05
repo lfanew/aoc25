@@ -5,66 +5,66 @@ import utils
 const filename = "input.txt"
 
 type
-  Range = object
+  Interval = object
     low: int
     high: int
   ParsingMode = enum
-    pmRange
+    pmInterval
     pmId
 
-func contains(range: Range, n: int): bool =
-  return n >= range.low and n <= range.high
+func contains(interval: Interval, n: int): bool =
+  return n >= interval.low and n <= interval.high
 
-func combine(self, other: Range): Range =
+func combine(self, other: Interval): Interval =
   let low = min(self.low, other.low)
   let high = max(self.high, other.high)
-  return Range(low: low, high: high)
+  return Interval(low: low, high: high)
 
-func len(self: Range): int =
+func len(self: Interval): int =
   return (self.high - self.low) + 1
 
-func parseRange(s: string): Range =
+func parseInterval(s: string): Interval =
   let parts = s.split('-')
-  return Range(low: parts[0].parseInt, high: parts[1].parseInt)
+  return Interval(low: parts[0].parseInt, high: parts[1].parseInt)
 
 # used by sort
-func `<`(self, other: Range): bool =
+func `<`(self, other: Interval): bool =
   return self.low < other.low
 
-func sum(ranges: openArray[Range]): int =
-  for range in ranges: result += range.len
+func sum(intervals: openArray[Interval]): int =
+  for interval in intervals: result += interval.len
 
-proc mergeRanges(ranges: var seq[Range]) =
+proc mergeIntervals(intervals: var seq[Interval]) =
   var i = 1
-  while i < ranges.len:
-    let current = ranges[i]
-    let prev = ranges[i-1]
+  while i < intervals.len:
+    let current = intervals[i]
+    let prev = intervals[i-1]
     if current.low <= prev.high:
-      ranges[i] = current.combine(prev)
-      ranges.delete(i-1)
+      intervals[i] = current.combine(prev)
+      intervals.delete(i-1)
     else:
       inc(i)
   
 withFile(f, filename, FileMode.fmRead):
   var part1 = 0
-  var pm = ParsingMode.pmRange
+  var pm = ParsingMode.pmInterval
   var line: string
-  var ranges: seq[Range]
+  var intervals: seq[Interval]
   while f.readLine(line):
     if line.isEmptyOrWhitespace:
       pm = ParsingMode.pmId
       continue
     case pm:
-      of ParsingMode.pmRange:
-        ranges.add(line.parseRange)
+      of ParsingMode.pmInterval:
+        intervals.add(line.parseInterval)
       of ParsingMode.pmId:
         let id = line.parseInt
-        for range in ranges:
-          if range.contains(id):
+        for interval in intervals:
+          if interval.contains(id):
             inc(part1)
             break
   echo "Part1: ", part1
-  sort(ranges)
-  ranges.mergeRanges
-  let part2 = ranges.sum
+  sort(intervals)
+  intervals.mergeIntervals
+  let part2 = intervals.sum
   echo "Part2: ", part2

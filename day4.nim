@@ -38,6 +38,10 @@ iterator points(grid: Grid): Point =
     for x in 0 ..< grid[y].len:
       yield (x, y)
 
+iterator pairs(grid: Grid): (Point, char) =
+  for point in grid.points:
+    yield (point, grid[point])
+
 iterator adjacent(grid: Grid, point: Point): char =
   for delta in NEIGHBOR_DELTAS:
     let point = point + delta
@@ -60,9 +64,9 @@ block part1:
         row.add(ch)
       grid.add(row)
 
-    for point in grid.points:
+    for point, value in grid:
       var rolls = 0
-      if grid[point] == '.': continue
+      if value == '.': continue
       for adjacent in grid.adjacent(point):
         if adjacent == '@': inc(rolls)
       if rolls < 4:
@@ -86,7 +90,7 @@ block part2:
       work.add(point)
     while work.len > 0:
       var newWork: seq[Point]
-      for idx, point in work:
+      for point in work:
         var rolls = 0
         if grid[point] == '.': continue
         for adjacent in grid.adjacent(point):

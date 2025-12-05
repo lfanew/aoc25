@@ -26,7 +26,7 @@ proc `[]=`(grid: var Grid, point: Point, value: char) =
   let (x, y) = point
   grid[y][x] = value
 
-func add(point: Point, delta: Point): Point =
+func `+`(point: Point, delta: Point): Point =
   (point[0] + delta[0], point[1] + delta[1])
 
 func contains(grid: Grid, point: Point): bool =
@@ -40,12 +40,12 @@ iterator points(grid: Grid): Point =
 
 iterator adjacent(grid: Grid, point: Point): char =
   for delta in NEIGHBOR_DELTAS:
-    let point = point.add(delta)
+    let point = point + delta
     if grid.contains(point): yield grid[point]
 
 iterator adjacentPoints(grid: Grid, point: Point): Point =
   for delta in NEIGHBOR_DELTAS:
-    let point = point.add(delta)
+    let point = point + delta
     if grid.contains(point): yield point
 
 

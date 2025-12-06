@@ -50,8 +50,60 @@ proc print*[T](self: View[T]) =
     stdout.write(' ')
   echo ""
 
+# Grid
+type
+  Grid*[T] = seq[Row[T]]
+  Row*[T] = seq[T]
+  Point* = (int, int)
+
+const NEIGHBOR_DELTAS: array[8, Point] = [
+  (1,   0),
+  (0,   1),
+  (-1,  0),
+  (0,  -1),
+  (1,   1),
+  (1,  -1),
+  (-1,  1),
+  (-1, -1)
+]
+
+func `[]`*[T](grid: Grid[T], point: Point): T =
+  let (x, y) = point
+  return grid[y][x]
+
+proc `[]=`*[T](grid: var Grid[T], point: Point, value: T) =
+  let (x, y) = point
+  grid[y][x] = value
+
+func `+`*(point: Point, delta: Point): Point =
+  (point[0] + delta[0], point[1] + delta[1])
+
+func contains*(grid: Grid, point: Point): bool =
+  let (x, y) = point
+  return y >= 0 and y < grid.len and x >= 0 and x < grid[0].len
+
+iterator points*(grid: Grid): Point =
+  for y in 0 ..< grid.len:
+    for x in 0 ..< grid[y].len:
+      yield (x, y)
+
+iterator pairs*[T](grid: Grid[T]): (Point, T) =
+  for point in grid.points:
+    yield (point, grid[point])
+
+iterator adjacentValues*[T](grid: Grid[T], point: Point): T =
+  for delta in NEIGHBOR_DELTAS:
+    let point = point + delta
+    if grid.contains(point): yield grid[point]
+
+iterator adjacentPoints*(grid: Grid, point: Point): Point =
+  for delta in NEIGHBOR_DELTAS:
+    let point = point + delta
+    if grid.contains(point): yield point
+
 # Helper procs
 
 func parseInt*(c: char): int =
   assert c >= '0' and c <= '9'
   return ord(c) - ord('0')
+

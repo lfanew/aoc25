@@ -101,9 +101,14 @@ iterator adjacentPoints*(grid: Grid, point: Point): Point =
     let point = point + delta
     if grid.contains(point): yield point
 
+proc print*[T](grid: Grid[T]) =
+  for row in grid:
+    for e in row:
+      stdout.write(e)
+    stdout.write('\n')
+
 # Helper procs
 
 func parseInt*(c: char): int =
   assert c >= '0' and c <= '9'
   return ord(c) - ord('0')
-

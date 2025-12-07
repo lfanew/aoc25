@@ -56,6 +56,16 @@ type
   Row*[T] = seq[T]
   Point* = (int, int)
 
+const
+  NORTH*:      Point = (0,  -1)
+  NORTH_EAST*: Point = (1,  -1)
+  EAST*:       Point = (1,   0)
+  SOUTH_EAST*: Point = (1,   1)
+  SOUTH*:      Point = (0,   1)
+  SOUTH_WEST*: Point = (-1,  1)
+  WEST*:       Point = (-1,  0)
+  NORTH_WEST*: Point = (-1, -1)
+  
 const NEIGHBOR_DELTAS: array[8, Point] = [
   (1,   0),
   (0,   1),

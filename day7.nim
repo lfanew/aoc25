@@ -58,41 +58,21 @@ block part2:
       start = (i, 0)
       break
 
-  var work: seq[Point] = @[start]
-  while work.len > 0:
-    var p = work.pop
-    if not grid.contains(p): continue
-    # split beam
-    if grid[p] == '^':
-      let (x, y) = p
-      let l = (x - 1, y)
-      if grid[l] != '|' and grid[l] != '^': work.add(l)
-      let r = (x + 1, y)
-      if grid[r] != '|' and grid[r] != '^': work.add(r)
-    else:
-      grid[p] = '|'
-      inc(p[1])
-      work.add(p)
-
   paths[start] = 1
-  for point in grid.points:
-    # skip first row
-    if point[1] == 0: continue
-    let value = grid[point]
-    if value != '|': continue
-    # echo point
-    let n = point + (0, -1)
-    var count = paths[n]
-    let e = point + (1,  0)
-    if grid.contains(e) and grid[e] == '^':
-      # echo point
-      count += paths[point + (1, -1)]
-    let w = point + (-1, 0)
-    if grid.contains(w) and grid[w] == '^':
-      # echo point
-      count += paths[point + (-1, -1)]
-    paths[point] = count
-
+  for point, count in paths:
+    if point[1] == paths.len - 1: break
+    if count == 0: continue
+    let s = grid[point + SOUTH]
+    if s == '^':
+      let se = point + SOUTH_EAST
+      if paths.contains(se):
+        paths[se] = paths[se] + count
+      let sw = point + SOUTH_WEST
+      if paths.contains(sw):
+        paths[sw] = paths[sw] + count
+    else:
+      paths[point + SOUTH] = paths[point + SOUTH] + count
+    
   var answer = 0
   for path in paths[^1]:
     answer += path

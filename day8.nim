@@ -26,10 +26,37 @@ func parseVector3(s: string): Vector3 =
       else: raise newException(IndexDefect, "Invalid Vector3 index")
     inc(i)
 
+block part1:
+  var points: seq[Vector3]
+  var groups: seq[HashSet[Vector3]]
+  withFile(f, filename, FileMode.fmRead):
+    var line: string
+    while f.readLine(line):
+      let v = line.parseVector3
+      points.add(v)
+      var set: HashSet[Vector3]
+      set.incl(v)
+      groups.add(set)
 
-var points: seq[Vector3]
-withFile(f, filename, FileMode.fmRead):
-  var line: string
-  while f.readLine(line):
-    points.add(line.parseVector3)
-echo points
+  for i, p in points:
+    var min = Vector3(x: int.high, y: int.high, z: int.high)
+    var minDistance = float.high
+    for j, q in points:
+      if i == j: continue
+      let distance = distance(p, q)
+      if distance < minDistance:
+        min = q
+        minDistance = distance
+    var pGroup, minGroup: int = -1
+    for group in 0 ..< groups.len:
+      if groups[group].contains(p): pGroup = group
+      if groups[group].contains(min): minGroup = group
+    if pGroup == minGroup: continue
+    groups[pGroup] = groups[pGroup].union(groups[minGroup])
+    groups.del(minGroup)
+
+  for group in groups:
+    echo group
+
+    # echo p, "<->", min
+      

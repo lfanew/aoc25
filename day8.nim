@@ -4,8 +4,12 @@ import std/sets
 import std/strutils
 import utils
 
-const filename = "input.txt"
-const iters = 1000
+const filename = "sample.txt"
+
+when filename == "input.txt":
+  const iters = 1000
+when filename == "sample.txt":
+  const iters = 10
 
 type
   Vector3 = object

@@ -38,64 +38,63 @@ func parseVector3(s: string): Vector3 =
       else: raise newException(IndexDefect, "Invalid Vector3 index")
     inc(i)
 
-block part1:
-  var points: seq[Vector3]
-  var queue: HeapQueue[DistancePair]
-  var groups: seq[HashSet[Vector3]]
-  var processed: HashSet[(Vector3, Vector3)]
+var points: seq[Vector3]
+var queue: HeapQueue[DistancePair]
+var groups: seq[HashSet[Vector3]]
+var processed: HashSet[(Vector3, Vector3)]
 
-  withFile(f, filename, FileMode.fmRead):
-    var line: string
-    while f.readLine(line):
-      let v = line.parseVector3
-      points.add(v)
-      var set: HashSet[Vector3]
-      set.incl(v)
-      groups.add(set)
+withFile(f, filename, FileMode.fmRead):
+  var line: string
+  while f.readLine(line):
+    let v = line.parseVector3
+    points.add(v)
+    var set: HashSet[Vector3]
+    set.incl(v)
+    groups.add(set)
 
-  for i, p in points:
-    for j, q in points:
-      if i == j: continue
-      let distance = distance(p, q)
-      if not processed.contains((p, q)):
-        let dp = DistancePair(a: p, b: q, distance: distance(p, q))
-        queue.push(dp)
-        processed.incl((q, p))
+for i, p in points:
+  for j, q in points:
+    if i == j: continue
+    let distance = distance(p, q)
+    if not processed.contains((p, q)):
+      let dp = DistancePair(a: p, b: q, distance: distance(p, q))
+      queue.push(dp)
+      processed.incl((q, p))
 
-  for i in 1 .. iters:
-    let dp = queue.pop()
-    var aGroup, bGroup: int = -1
-    for group in 0 ..< groups.len:
-      if groups[group].contains(dp.a): aGroup = group
-      if groups[group].contains(dp.b): bGroup = group
-    if aGroup == bGroup:
-      continue
-    groups[aGroup] = groups[aGroup].union(groups[bGroup])
-    groups.del(bGroup)
+for i in 1 .. iters:
+  let dp = queue.pop()
+  var aGroup, bGroup: int = -1
+  for group in 0 ..< groups.len:
+    if groups[group].contains(dp.a): aGroup = group
+    if groups[group].contains(dp.b): bGroup = group
+  if aGroup == bGroup:
+    continue
+  groups[aGroup] = groups[aGroup].union(groups[bGroup])
+  groups.del(bGroup)
 
-  var top1, top2, top3 = 0
-  for group in groups:
-    if group.len > top1:
-      swap(top1, top2)
-      swap(top1, top3)
-      top1 = group.len
-    elif group.len > top2:
-      swap(top2, top3)
-      top2 = group.len
-    elif group.len > top3: top3 = group.len
+var top1, top2, top3 = 0
+for group in groups:
+  if group.len > top1:
+    swap(top1, top2)
+    swap(top1, top3)
+    top1 = group.len
+  elif group.len > top2:
+    swap(top2, top3)
+    top2 = group.len
+  elif group.len > top3: top3 = group.len
 
-  echo top1 * top2 * top3
+echo top1 * top2 * top3
 
-  var dp: DistancePair
-  while groups.len > 1:
-    dp = queue.pop()
-    var aGroup, bGroup: int = -1
-    for group in 0 ..< groups.len:
-      if groups[group].contains(dp.a): aGroup = group
-      if groups[group].contains(dp.b): bGroup = group
-    if aGroup == bGroup:
-      continue
-    groups[aGroup] = groups[aGroup].union(groups[bGroup])
-    groups.del(bGroup)
+var dp: DistancePair
+while groups.len > 1:
+  dp = queue.pop()
+  var aGroup, bGroup: int = -1
+  for group in 0 ..< groups.len:
+    if groups[group].contains(dp.a): aGroup = group
+    if groups[group].contains(dp.b): bGroup = group
+  if aGroup == bGroup:
+    continue
+  groups[aGroup] = groups[aGroup].union(groups[bGroup])
+  groups.del(bGroup)
 
-  echo (dp.a.x * dp.b.x)
+echo (dp.a.x * dp.b.x)

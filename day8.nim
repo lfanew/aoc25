@@ -5,6 +5,7 @@ import std/strutils
 import utils
 
 const filename = "input.txt"
+const iters = 1000
 
 type
   Vector3 = object
@@ -48,7 +49,6 @@ block part1:
       set.incl(v)
       groups.add(set)
 
-  echo "building..."
   for i, p in points:
     for j, q in points:
       if i == j: continue
@@ -58,8 +58,7 @@ block part1:
         queue.push(dp)
         processed.incl((q, p))
 
-  echo "calculating..."
-  for i in 1 .. 1000:
+  for i in 1 .. iters:
     let dp = queue.pop()
     var aGroup, bGroup: int = -1
     for group in 0 ..< groups.len:
@@ -82,3 +81,17 @@ block part1:
     elif group.len > top3: top3 = group.len
 
   echo top1 * top2 * top3
+
+  var dp: DistancePair
+  while groups.len > 1:
+    dp = queue.pop()
+    var aGroup, bGroup: int = -1
+    for group in 0 ..< groups.len:
+      if groups[group].contains(dp.a): aGroup = group
+      if groups[group].contains(dp.b): bGroup = group
+    if aGroup == bGroup:
+      continue
+    groups[aGroup] = groups[aGroup].union(groups[bGroup])
+    groups.del(bGroup)
+
+  echo (dp.a.x * dp.b.x)

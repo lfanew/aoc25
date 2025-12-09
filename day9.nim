@@ -12,7 +12,7 @@ func parsePoint(s: string): Point =
     case i:
       of 0: result[0] = num
       of 1: result[1] = num
-      else: raise newException(IndexDefect, "Invalid Vector3 index")
+      else: raise newException(IndexDefect, "Invalid Point index")
     inc(i)
 
 withFile(f, filename, FileMode.fmRead):

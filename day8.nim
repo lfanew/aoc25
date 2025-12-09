@@ -1,13 +1,20 @@
+import std/heapqueue
 import std/math
 import std/sets
 import std/strutils
 import utils
 
-const filename = "sample.txt"
+const filename = "input.txt"
 
 type
   Vector3 = object
     x, y, z: int
+  DistancePair = object
+    a, b: Vector3
+    distance: float
+
+func `<`(self, other: DistancePair): bool =
+  return self.distance < other.distance
 
 func distance(self, other: Vector3): float =
   let dx = self.x - other.x
@@ -28,7 +35,10 @@ func parseVector3(s: string): Vector3 =
 
 block part1:
   var points: seq[Vector3]
+  var queue: HeapQueue[DistancePair]
   var groups: seq[HashSet[Vector3]]
+  var processed: HashSet[(Vector3, Vector3)]
+
   withFile(f, filename, FileMode.fmRead):
     var line: string
     while f.readLine(line):
@@ -38,25 +48,37 @@ block part1:
       set.incl(v)
       groups.add(set)
 
+  echo "building..."
   for i, p in points:
-    var min = Vector3(x: int.high, y: int.high, z: int.high)
-    var minDistance = float.high
     for j, q in points:
       if i == j: continue
       let distance = distance(p, q)
-      if distance < minDistance:
-        min = q
-        minDistance = distance
-    var pGroup, minGroup: int = -1
+      if not processed.contains((p, q)):
+        let dp = DistancePair(a: p, b: q, distance: distance(p, q))
+        queue.push(dp)
+        processed.incl((q, p))
+
+  echo "calculating..."
+  for i in 1 .. 1000:
+    let dp = queue.pop()
+    var aGroup, bGroup: int = -1
     for group in 0 ..< groups.len:
-      if groups[group].contains(p): pGroup = group
-      if groups[group].contains(min): minGroup = group
-    if pGroup == minGroup: continue
-    groups[pGroup] = groups[pGroup].union(groups[minGroup])
-    groups.del(minGroup)
+      if groups[group].contains(dp.a): aGroup = group
+      if groups[group].contains(dp.b): bGroup = group
+    if aGroup == bGroup:
+      continue
+    groups[aGroup] = groups[aGroup].union(groups[bGroup])
+    groups.del(bGroup)
 
+  var top1, top2, top3 = 0
   for group in groups:
-    echo group
+    if group.len > top1:
+      swap(top1, top2)
+      swap(top1, top3)
+      top1 = group.len
+    elif group.len > top2:
+      swap(top2, top3)
+      top2 = group.len
+    elif group.len > top3: top3 = group.len
 
-    # echo p, "<->", min
-      
+  echo top1 * top2 * top3

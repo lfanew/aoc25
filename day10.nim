@@ -1,3 +1,5 @@
+import std/sets
+import std/pegs
 import std/strutils
 import utils
 
@@ -5,7 +7,7 @@ const filename = "sample.txt"
 
 type
   Machine = seq[bool]
-  Button = seq[int]
+  Button = HashSet[int]
 
 func parseMachine(s: string): Machine =
   let lightView = s.toView(1, s.len - 2) # discard []
@@ -21,11 +23,27 @@ func parseMachine(s: string): Machine =
 proc parseButton(s: string): Button =
   let wiringString = s[1..^2] # discard ()
   for numString in wiringString.split(','):
-    result.add(numString.parseInt)
+    result.incl(numString.parseInt)
+
+proc apply(machine: var Machine, button: Button) =
+  for wire in button:
+    machine[wire] = not machine[wire]
+
+type
+  Node = ref object
+    data: Machine
+    children: seq[Node]
 
 withFile(f, filename, FileMode.fmRead):
   var line: string
-  # echo parseMachine("[.###.#]")
-  # echo parseButton("(0,1,2,3,4)")
   while f.readLine(line):
-    echo line
+    let desiredString = line.findAll(peg"\[[\.\#]+\]")[0]
+    let buttonStrings = line.findAll(peg"\(\d+(\,\d)*\)")
+    let desired = desiredString.parseMachine
+    var current: Machine = newSeq[bool](desired.len)
+    var buttons: seq[Button]
+    for s in buttonStrings:
+      buttons.add(s.parseButton)
+    echo current, " | Pressing ", buttons[0]
+    current.apply(buttons[0])
+    echo current

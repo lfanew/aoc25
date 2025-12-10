@@ -51,6 +51,7 @@ iterator edges(polygon: Polygon): Edge =
     let p2 = polygon[i]
 
     yield (p1, p2)
+  # connect beginning and end to form loop
   yield (polygon[0], polygon[^1])
 
 func intersects(line1, line2: Edge): bool =
@@ -92,6 +93,7 @@ block part2:
       if area > answer:
         var valid = true
         let edge1: Edge = (p, q)
+        # edge2 will be the other line that runs through our rectangle
         let edge2: Edge = ((p[0], q[1]), (q[0], p[1]))
         for polygonEdge in polygon.edges:
           if edge1.intersects(polygonEdge) or edge2.intersects(polygonEdge):

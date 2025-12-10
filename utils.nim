@@ -88,6 +88,9 @@ proc `[]=`*[T](grid: var Grid[T], point: Point, value: T) =
 func `+`*(point: Point, delta: Point): Point =
   (point[0] + delta[0], point[1] + delta[1])
 
+func `-`*(point: Point, delta: Point): Point =
+  (point[0] - delta[0], point[1] - delta[1])
+
 func contains*(grid: Grid, point: Point): bool =
   let (x, y) = point
   return y >= 0 and y < grid.len and x >= 0 and x < grid[0].len

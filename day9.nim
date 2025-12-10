@@ -1,3 +1,6 @@
+# Shoutout to EgoMoose's great 2d raycasting video
+# https://www.youtube.com/watch?v=c065KoXooSw
+
 import std/math
 import std/strutils
 import utils
@@ -48,29 +51,25 @@ iterator edges(polygon: Polygon): Edge =
     let p2 = polygon[i]
 
     yield (p1, p2)
+  yield (polygon[0], polygon[^1])
 
-iterator points(edge: Edge): Point =
-  var current = edge[0]
-  let stop = edge[1]
-  let dx = stop[0] - current[0]
-  let dy = stop[1] - current[1] 
-  let divisor = gcd(dx, dy)
-  let step: Point = (dx div divisor, dy div divisor)
-  while current != stop:
-    yield current
-    current = current + step
-  yield current
+func intersects(line1, line2: Edge): bool =
+  let (a, b) = line1
+  let (c, d) = line2
 
-func containsPoint(polygon: Polygon, point: Point): bool =
-  var count = 0
-  let (xp, yp) = point
-  for edge in polygon.edges:
-    let ((x1, y1), (x2, y2)) = edge
-    if (yp < y1) != (yp < y2) and
-      float(xp) < (float(x1) + ((yp-y1)/(y2-y1)) * float(x2-x1)):
-        inc(count)
-  return count mod 2 == 1
+  let r = (b - a)
+  let s = (d - c)
 
+  let denominator = r[0] * s[1] - r[1] * s[0]
+  if denominator == 0: return false
+  let u = ((c[0] - a[0]) * r[1] - (c[1] - a[1]) * r[0]) / denominator
+  let t = ((c[0] - a[0]) * s[1] - (c[1] - a[1]) * s[0]) / denominator
+
+
+  # u can be zero in case we intersect in a T shape
+  result = 0 <= u and u < 1 and
+           0 < t and t < 1
+  
 block part2:
   var polygon: Polygon
   withFile(f, filename, FileMode.fmRead):
@@ -79,7 +78,7 @@ block part2:
       polygon.add(line.parsePoint)
 
   var answer = 0
-
+  
   for i, p in polygon:
     for j, q in polygon:
       if i == j: continue
@@ -90,11 +89,13 @@ block part2:
       let area = width * height
       if area > answer:
         var valid = true
-        let edge: Edge = (p, q)
-        for point in edge.points:
-          if not polygon.containsPoint(point):
+        let edge1: Edge = (p, q)
+        let edge2: Edge = ((p[0], q[1]), (q[0], p[1]))
+        for polygonEdge in polygon.edges:
+          if edge1.intersects(polygonEdge) or edge2.intersects(polygonEdge):
             valid = false
             break
-        if valid: answer = area
+        if valid:
+          answer = area
 
   echo answer

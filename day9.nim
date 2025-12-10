@@ -54,6 +54,7 @@ iterator edges(polygon: Polygon): Edge =
   yield (polygon[0], polygon[^1])
 
 func intersects(line1, line2: Edge): bool =
+  ## not a lore accurate intersection function
   let (a, b) = line1
   let (c, d) = line2
 
@@ -66,8 +67,9 @@ func intersects(line1, line2: Edge): bool =
   let t = ((c[0] - a[0]) * s[1] - (c[1] - a[1]) * s[0]) / denominator
 
 
-  # u can be zero in case we intersect in a T shape
-  result = 0 <= u and u < 1 and
+  # only allow u to be 0 and 1 to avoid junction points
+  # which we are not calling intersections for our purposes
+  result = 0 <= u and u <= 1 and
            0 < t and t < 1
   
 block part2:

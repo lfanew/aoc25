@@ -3,7 +3,7 @@ import std/pegs
 import std/strutils
 import utils
 
-const filename = "sample.txt"
+const filename = "input.txt"
 
 type
   Machine = seq[bool]
@@ -25,14 +25,17 @@ proc parseButton(s: string): Button =
   for numString in wiringString.split(','):
     result.incl(numString.parseInt)
 
-proc apply(machine: var Machine, button: Button) =
+proc apply(machine: Machine, button: Button): Machine =
+  result = machine
   for wire in button:
-    machine[wire] = not machine[wire]
+    result[wire] = not result[wire]
 
 type
   Node = ref object
     data: Machine
     children: seq[Node]
+
+var answer = 0
 
 withFile(f, filename, FileMode.fmRead):
   var line: string
@@ -44,6 +47,18 @@ withFile(f, filename, FileMode.fmRead):
     var buttons: seq[Button]
     for s in buttonStrings:
       buttons.add(s.parseButton)
-    echo current, " | Pressing ", buttons[0]
-    current.apply(buttons[0])
-    echo current
+    # echo current, " | Pressing ", buttons[0]
+    # echo current
+    var variants: HashSet[Machine]
+    variants.incl(current)
+    var presses = 0
+    while not variants.contains(desired):
+      var newVariants: HashSet[Machine]
+      for variant in variants:
+        for button in buttons:
+          newVariants.incl(variant.apply(button))
+      variants = newVariants
+      inc(presses)
+    answer += presses
+
+echo answer

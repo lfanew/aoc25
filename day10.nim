@@ -35,30 +35,74 @@ type
     data: Machine
     children: seq[Node]
 
-var answer = 0
+# block part1:
+#   var answer = 0
 
-withFile(f, filename, FileMode.fmRead):
-  var line: string
-  while f.readLine(line):
-    let desiredString = line.findAll(peg"\[[\.\#]+\]")[0]
-    let buttonStrings = line.findAll(peg"\(\d+(\,\d)*\)")
-    let desired = desiredString.parseMachine
-    var current: Machine = newSeq[bool](desired.len)
-    var buttons: seq[Button]
-    for s in buttonStrings:
-      buttons.add(s.parseButton)
-    # echo current, " | Pressing ", buttons[0]
-    # echo current
-    var variants: HashSet[Machine]
-    variants.incl(current)
-    var presses = 0
-    while not variants.contains(desired):
-      var newVariants: HashSet[Machine]
-      for variant in variants:
-        for button in buttons:
-          newVariants.incl(variant.apply(button))
-      variants = newVariants
-      inc(presses)
-    answer += presses
+#   withFile(f, filename, FileMode.fmRead):
+#     var line: string
+#     while f.readLine(line):
+#       let desiredString = line.findAll(peg"\[[\.\#]+\]")[0]
+#       let buttonStrings = line.findAll(peg"\(\d+(\,\d)*\)")
+#       let desired = desiredString.parseMachine
+#       var current: Machine = newSeq[bool](desired.len)
+#       var buttons: seq[Button]
+#       for s in buttonStrings:
+#         buttons.add(s.parseButton)
+#       # echo current, " | Pressing ", buttons[0]
+#       # echo current
+#       var variants: HashSet[Machine]
+#       variants.incl(current)
+#       var presses = 0
+#       while not variants.contains(desired):
+#         var newVariants: HashSet[Machine]
+#         for variant in variants:
+#           for button in buttons:
+#             newVariants.incl(variant.apply(button))
+#         variants = newVariants
+#         inc(presses)
+#       answer += presses
 
-echo answer
+#   echo answer
+
+type
+  Joltages = seq[int]
+
+# func parseJoltages(s: string): Joltages =
+proc parseJoltages(s: string): Joltages =
+  let s = s[1..^2]
+  for numString in s.split(','):
+    result.add(numString.parseInt)
+
+proc apply(joltages: Joltages, button: Button): Joltages =
+  result = joltages
+  for wire in button:
+    inc(result[wire])
+
+block part2:
+  var answer = 0
+
+  withFile(f, filename, FileMode.fmRead):
+    var line: string
+    while f.readLine(line):
+      # echo line.findAll(peg"\{\d+(\,\d)*\}")
+      let desiredString = line.findAll(peg"\{\d+(\,\d+)*\}")[0]
+      # echo desiredString
+      let buttonStrings = line.findAll(peg"\(\d+(\,\d)*\)")
+      let desired = desiredString.parseJoltages
+      var current: Joltages = newSeq[int](desired.len)
+      var buttons: seq[Button]
+      for s in buttonStrings:
+        buttons.add(s.parseButton)
+      var variants: HashSet[Joltages]
+      variants.incl(current)
+      var presses = 0
+      while not variants.contains(desired):
+        var newVariants: HashSet[Joltages]
+        for variant in variants:
+          for button in buttons:
+            newVariants.incl(variant.apply(button))
+        variants = newVariants
+        inc(presses)
+      answer += presses
+
+  echo answer

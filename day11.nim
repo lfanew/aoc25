@@ -9,9 +9,6 @@ type
     id: string
     outputs: seq[Device]
 
-func `$`(device: Device): string =
-  return device.id
-
 block part1:
   var nodes: Table[string, Device]
   withFile(f, filename, FileMode.fmRead):
@@ -43,15 +40,12 @@ block part1:
 
 var cache: Table[(string, bool, bool), int]
 proc numOfPaths(device: Device, dac = false, fft = false): int =
-  # echo cache
   if device.id == "out":
     if dac and fft: return 1 else: return 0
-  # if dac and fft: return 1
-  # elif device.id == "out": return 0
 
   for output in device.outputs:
-    let dac = dac or device.id == "dac"
-    let fft = fft or device.id == "fft"
+    let dac = dac or output.id == "dac"
+    let fft = fft or output.id == "fft"
     let key = (output.id, dac, fft)
     if cache.hasKey(key):
       result += cache[key]
@@ -80,18 +74,5 @@ block part2:
         let output = nodes[outputString]
         device.outputs.add(output) 
 
-  # let start = nodes["svr"]
-  # var stack = @[(start, false, false)]
-  var answer = numOfPaths(nodes["svr"])
-
-  # while stack.len > 0:
-  #   let current = stack.pop
-  #   if current[0].id == "out":
-  #     if current[1] and current[2]:
-  #       inc(answer)
-  #     continue
-  #   for output in current[0].outputs:
-  #     let dac = current[1] or output.id == "dac"
-  #     let fft = current[2] or output.id == "fft"
-  #     stack.add((output, dac, fft))
+  let answer = numOfPaths(nodes["svr"])
   echo answer

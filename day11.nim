@@ -44,8 +44,8 @@ proc numOfPaths(device: Device, dac = false, fft = false): int =
     if dac and fft: return 1 else: return 0
 
   for output in device.outputs:
-    let dac = dac or output.id == "dac"
-    let fft = fft or output.id == "fft"
+    let dac = dac or device.id == "dac"
+    let fft = fft or device.id == "fft"
     let key = (output.id, dac, fft)
     if cache.hasKey(key):
       result += cache[key]
